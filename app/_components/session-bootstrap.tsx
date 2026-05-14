@@ -19,6 +19,7 @@ export function SessionBootstrap() {
     // クライアント側での自動作成は行わない。
     // onAuthStateChange のみ登録し、Google認証後の処理を行う。
 
+    const currentPath = window.location.pathname;
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!active) {
         return;
@@ -34,7 +35,7 @@ export function SessionBootstrap() {
             const newSession = result?.data?.session;
             if (newSession) {
               const claims = getMembershipClaimsFromAccessToken(newSession.access_token);
-              if (hasMembershipClaims(claims)) {
+              if (hasMembershipClaims(claims) && currentPath === "/") {
                 router.replace("/group");
                 router.refresh();
               }
@@ -57,7 +58,7 @@ export function SessionBootstrap() {
           const newSession = result?.data?.session;
           if (newSession) {
             const claims = getMembershipClaimsFromAccessToken(newSession.access_token);
-            if (hasMembershipClaims(claims)) {
+            if (hasMembershipClaims(claims) && currentPath === "/") {
               router.replace("/group");
               router.refresh();
               return;
