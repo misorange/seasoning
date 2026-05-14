@@ -1,37 +1,104 @@
+"use client";
+
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { AccountPanel } from "../_components/account-panel";
 import type {
   AccountMembership,
   ReceivedDiaryHistoryItem,
   SentDiaryHistoryItem,
 } from "@/utils/account";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import { formatSupabaseError } from "@/utils/supabase/errors";
 import { getMembershipClaimsFromAccessToken } from "@/utils/supabase/session";
 
-export default async function AccountPage() {
-  const supabase = await createClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
+export default function AccountPage() {
+  const router = useRouter();
+  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [memberships, setMemberships] = useState<AccountMembership[]>([]);
+  const [sentHistory, setSentHistory] = useState<SentDiaryHistoryItem[]>([]);
+  const [receivedHistory, setReceivedHistory] = useState<ReceivedDiaryHistoryItem[]>([]);
+  const [currentMemberId, setCurrentMemberId] = useState<string | undefined>();
 
-  if (!session) {
-    redirect("/");
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (!session) {
+          router.replace("/");
+          return;
+        }
+
+        const claims = getMembershipClaimsFromAccessToken(session.access_token);
+        setCurrentMemberId(claims.memberId);
+
+        const [membershipsResult, sentHistoryResult, receivedHistoryResult] =
+          await Promise.all([
+            supabase.rpc("get_my_account_memberships", {}, { get: true }),
+            supabase.rpc("get_my_sent_diary_history", {}, { get: true }),
+            supabase.rpc("get_my_received_diary_history", {}, { get: true }),
+          ]);
+
+        const firstError =
+          membershipsResult.error ??
+          sentHistoryResult.error ??
+          receivedHistoryResult.error;
+
+        if (firstError) {
+          setError(formatSupabaseError(firstError));
+        } else {
+          setMemberships(membershipsResult.data ?? []);
+          setSentHistory(sentHistoryResult.data ?? []);
+          setReceivedHistory(receivedHistoryResult.data ?? []);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "データの読み込みに失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, [supabase, router]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-white">
+        <div className="mx-auto w-full max-w-2xl px-5 py-12 sm:px-8">
+          <div className="flex items-center justify-center py-16">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-800 mx-auto mb-4"></div>
+              <p className="text-sm text-gray-500">読み込み中...</p>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
   }
 
-  const claims = getMembershipClaimsFromAccessToken(session.access_token);
-  const [membershipsResult, sentHistoryResult, receivedHistoryResult] =
-    await Promise.all([
-      supabase.rpc("get_my_account_memberships", {}, { get: true }),
-      supabase.rpc("get_my_sent_diary_history", {}, { get: true }),
-      supabase.rpc("get_my_received_diary_history", {}, { get: true }),
-    ]);
-
-  const firstError =
-    membershipsResult.error ??
-    sentHistoryResult.error ??
-    receivedHistoryResult.error;
+  if (error) {
+    return (
+      <main className="min-h-screen bg-white">
+        <div className="mx-auto w-full max-w-2xl px-5 py-12 sm:px-8">
+          <div className="text-center py-16">
+            <p className="text-sm text-rose-600 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm font-medium text-gray-600 hover:text-gray-800 underline"
+            >
+              再読み込み
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white">
@@ -56,23 +123,11 @@ export default async function AccountPage() {
         </header>
 
         <div className="py-8">
-          {firstError && (
-            <p className="mb-8 text-sm text-rose-600">
-              {formatSupabaseError(firstError)}
-            </p>
-          )}
-
           <AccountPanel
-            currentMemberId={claims.memberId}
-            memberships={
-              (membershipsResult.data ?? []) as AccountMembership[]
-            }
-            sentHistory={
-              (sentHistoryResult.data ?? []) as SentDiaryHistoryItem[]
-            }
-            receivedHistory={
-              (receivedHistoryResult.data ?? []) as ReceivedDiaryHistoryItem[]
-            }
+            currentMemberId={currentMemberId}
+            memberships={memberships}
+            sentHistory={sentHistory}
+            receivedHistory={receivedHistory}
           />
         </div>
       </div>
