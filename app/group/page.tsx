@@ -133,6 +133,10 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
     );
     const memberships = (membershipsResult.data ?? []) as AccountMembership[];
 
+    if (session.user.is_anonymous && memberships.length === 0) {
+      redirect("/");
+    }
+
     return (
       <main className="min-h-screen bg-white">
         <div className="mx-auto w-full max-w-2xl px-5 py-12 sm:px-8">
