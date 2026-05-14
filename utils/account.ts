@@ -3,7 +3,15 @@ export type AccountMembership = {
   group_id: string;
   group_name: string;
   nickname: string;
-  member_icon: "salt" | "soy_sauce" | "pepper" | "olive_oil" | "miso" | "harb" | "chili_pepper";
+  member_icon:
+    | "salt"
+    | "soy_sauce"
+    | "pepper"
+    | "olive_oil"
+    | "miso"
+    | "harb"
+    | "herb"
+    | "chili_pepper";
   member_role: "admin" | "member";
   created_at: string;
   last_active_at: string;

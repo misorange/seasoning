@@ -112,10 +112,17 @@ export function AccountPanel({
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
+  function normalizeIconId(icon: AccountMembership["member_icon"] | undefined) {
+    if (icon === "harb") {
+      return "herb" as const;
+    }
+    return icon ?? "salt";
+  }
+
   function beginEdit(membership: AccountMembership) {
     setEditingMemberId(membership.member_id);
     setNicknameDraft(membership.nickname);
-    setIconDraft(membership.member_icon ?? "salt");
+    setIconDraft(normalizeIconId(membership.member_icon));
   }
 
   async function saveNickname(memberId: string) {
@@ -592,7 +599,7 @@ export function AccountPanel({
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
                           <img
-                            src={`/${membership.member_icon ?? "salt"}.png`}
+                            src={`/${normalizeIconId(membership.member_icon)}.png`}
                             alt="アイコン"
                             className="w-5 h-5 object-contain"
                           />
