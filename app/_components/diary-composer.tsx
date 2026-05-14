@@ -17,7 +17,8 @@ export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const trimmedLength = content.trim().length;
-  const canSubmit = trimmedLength >= 50 && !submitting;
+  const canSubmit = trimmedLength >= 20 && !submitting;
+  const remainingCount = Math.max(20 - trimmedLength, 0);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -25,8 +26,8 @@ export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
     event.preventDefault();
     const trimmedContent = content.trim();
 
-    if (trimmedContent.length < 50) {
-      setMessage("日記は50文字以上で書いてください。");
+    if (trimmedContent.length < 20) {
+      setMessage("日記は20文字以上で書いてください。");
       return;
     }
 
@@ -81,8 +82,8 @@ export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
-            <span className={`text-sm tracking-widest ${trimmedLength >= 50 ? 'text-gray-800' : 'text-gray-500'}`}>
-              {trimmedLength} <span className="text-gray-500">/</span> 50
+            <span className={`text-sm tracking-widest ${trimmedLength >= 20 ? 'text-gray-800' : 'text-gray-500'}`}>
+              {remainingCount > 0 ? `${remainingCount} more` : "✓"}
             </span>
           </header>
 

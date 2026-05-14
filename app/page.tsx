@@ -27,7 +27,7 @@ export default function Home() {
             <div className="flex items-baseline gap-2">
               <p className="text-xs font-medium text-gray-800 tracking-widest uppercase">Write</p>
               <p className="text-sm font-medium text-gray-800">
-                50文字以上で投稿
+                20文字以上で投稿
               </p>
             </div>
             <div className="flex items-baseline gap-2">

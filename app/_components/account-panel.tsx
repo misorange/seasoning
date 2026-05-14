@@ -26,7 +26,7 @@ type Notice = {
 type HistoryTab = "sent" | "received";
 
 type IconOption = {
-  id: "salt" | "soy_sauce" | "pepper" | "olive_oil" | "miso" | "harb" | "chili_pepper";
+  id: "salt" | "soy_sauce" | "pepper" | "olive_oil" | "miso" | "herb" | "chili_pepper";
   label: string;
   src: string;
 };
@@ -37,7 +37,7 @@ const iconOptions: IconOption[] = [
   { id: "pepper", label: "胡椒", src: "/pepper.png" },
   { id: "olive_oil", label: "オリーブオイル", src: "/olive_oil.png" },
   { id: "miso", label: "味噌", src: "/miso.png" },
-  { id: "harb", label: "ハーブ", src: "/harb.png" },
+  { id: "herb", label: "ハーブ", src: "/herb.png" },
   { id: "chili_pepper", label: "唐辛子", src: "/chili_pepper.png" },
 ];
 

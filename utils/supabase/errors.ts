@@ -5,7 +5,7 @@ type ErrorLike = {
 
 export function formatSupabaseError(error: ErrorLike) {
   if (error.code === "23514") {
-    return "日記は50文字以上で書いてください。";
+    return "日記は20文字以上で書いてください。";
   }
 
   if (error.code === "42501" || /permission|policy|rls/i.test(error.message ?? "")) {
