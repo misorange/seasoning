@@ -301,6 +301,6 @@ User A writes diary → System checks:
 
 [⭐ Star this repository](https://github.com/misorange/seasoning) if you like it!
 
-[🚀 Live Demo](https://seasoning.vercel.app) • [💬 Discussions](https://github.com/misorange/seasoning/discussions)
+[🚀 Live Demo](https://seasoning-diary.vercel.app) • [💬 Discussions](https://github.com/misorange/seasoning/discussions)
 
 </div>
