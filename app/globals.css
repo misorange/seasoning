@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-noto-sans-jp), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  
+  /* Custom Animations */
+  --animate-fade-in-up: fade-in-up 0.5s ease-out forwards;
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes glow {
+    from {
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.2), 0 0 20px rgba(16, 185, 129, 0.1);
+    }
+    to {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.4), 0 0 30px rgba(16, 185, 129, 0.2);
+    }
+  }
+}
+
+/* Base styles for dark theme glassmorphism */
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-200 antialiased;
+  }
+}
+
+/* Glassmorphism utility classes */
+@layer utilities {
+  .glass-card {
+    @apply bg-slate-900/40 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+  
+  .glass-input {
+    @apply bg-slate-900/50 border border-slate-700/50 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/20 text-slate-200 outline-none transition-all placeholder:text-slate-500;
+  }
+  
+  .glass-button-primary {
+    @apply bg-emerald-600/90 hover:bg-emerald-500 text-white font-semibold shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all border border-emerald-400/20;
+  }
+  
+  .glass-button-secondary {
+    @apply bg-slate-800/80 hover:bg-slate-700 text-slate-200 font-semibold border border-white/10 transition-all;
+  }
+
+  .glass-button-danger {
+    @apply bg-rose-900/80 hover:bg-rose-800 text-rose-100 font-semibold border border-rose-500/30 shadow-[0_0_15px_rgba(225,29,72,0.2)] hover:shadow-[0_0_25px_rgba(225,29,72,0.4)] transition-all;
+  }
+}
