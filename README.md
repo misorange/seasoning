@@ -100,7 +100,7 @@ npm run start
 # Vercel にデプロイ
 vercel --prod
 
-> Vercel の `vercel.json` に `crons` を追加し、`/api/keepalive` を 12 時間ごとに叩くことで、Supabase の自動一時停止を回避できます。1 日 1 回にしたい場合は `0 0 * * *` に変更してください。
+> Vercel の `vercel.json` に `crons` を追加し、`/api/keepalive` を 24 時間ごとに叩くことで、Supabase の自動一時停止を回避できます。
 ```
 
 ---
