@@ -8,16 +8,17 @@ import { formatSupabaseError } from "@/utils/supabase/errors";
 type DiaryComposerProps = {
   groupId: string;
   memberId: string;
+  isBanned: boolean;
 };
 
-export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
+export function DiaryComposer({ groupId, memberId, isBanned }: DiaryComposerProps) {
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState("");
   const trimmedLength = content.trim().length;
-  const canSubmit = trimmedLength >= 20 && !submitting;
+  const canSubmit = trimmedLength >= 20 && !submitting && !isBanned;
   const remainingCount = Math.max(20 - trimmedLength, 0);
 
   const [isOpen, setIsOpen] = useState(false);
@@ -25,6 +26,11 @@ export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedContent = content.trim();
+
+    if (isBanned) {
+      setMessage("このグループでは投稿権限がありません。");
+      return;
+    }
 
     if (trimmedContent.length < 20) {
       setMessage("日記は20文字以上で書いてください。");
@@ -63,11 +69,17 @@ export function DiaryComposer({ groupId, memberId }: DiaryComposerProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-10 right-10 z-40 flex items-center justify-center w-16 h-16 bg-white border border-gray-200 shadow-sm rounded-full transition-transform hover:scale-105"
+        disabled={isBanned}
+        className="fixed bottom-10 right-10 z-40 flex items-center justify-center w-16 h-16 bg-white border border-gray-200 shadow-sm rounded-full transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label="日記を書く"
       >
         <img src="/pepper.png" alt="日記を書く" className="w-8 h-8 object-contain opacity-80" />
       </button>
+      {isBanned && (
+        <p className="fixed bottom-28 right-5 z-40 max-w-xs rounded-3xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-700 shadow-sm">
+          このグループでは投稿権限がありません。
+        </p>
+      )}
 
       {isOpen && (
         <div className="fixed inset-0 z-50 bg-white flex flex-col">

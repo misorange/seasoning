@@ -25,6 +25,7 @@ type MemberProfile = {
   id: string;
   nickname: string;
   role: "admin" | "member";
+  is_banned: boolean;
 };
 
 async function getTimelineEntries(
@@ -167,7 +168,7 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
         .maybeSingle(),
       supabase
         .from("group_members")
-        .select("id, nickname, role")
+        .select("id, nickname, role, is_banned")
         .eq("id", claims.memberId)
         .maybeSingle(),
       supabase
@@ -178,7 +179,7 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
       supabase.rpc("get_my_account_memberships", {}, { get: true }),
       supabase
         .from("group_members")
-        .select("id, nickname, role")
+        .select("id, nickname, role, is_banned")
         .eq("group_id", claims.groupId)
         .order("nickname", { ascending: true }),
     ]);
@@ -188,6 +189,8 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
   const pendingTicketCount = pendingResult.count ?? 0;
   const memberships = (membershipsResult.data ?? []) as AccountMembership[];
   const groupMembers = (groupMembersResult.data ?? []) as MemberProfile[];
+  const currentMemberIsBanned = member?.is_banned ?? false;
+  const isCurrentUserAdmin = member?.role === "admin";
 
   if (!group || !member) {
     redirect("/");
@@ -241,7 +244,11 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
           </p>
         )}
 
-        <GroupMemberList currentMemberId={claims.memberId} groupMembers={groupMembers} />
+        <GroupMemberList
+          currentMemberId={claims.memberId}
+          currentMemberRole={member?.role ?? "member"}
+          groupMembers={groupMembers}
+        />
 
         {timelineResult.error && (
           <p className="my-8 text-sm text-rose-600">
@@ -256,7 +263,11 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
           />
         </div>
 
-        <DiaryComposer groupId={claims.groupId} memberId={claims.memberId} />
+        <DiaryComposer
+          groupId={claims.groupId}
+          memberId={claims.memberId}
+          isBanned={currentMemberIsBanned}
+        />
       </div>
     </main>
   );
