@@ -13,6 +13,7 @@ import {
 import type { AccountMembership } from "@/utils/account";
 import { GroupSwitcher } from "../_components/group-switcher";
 import { GroupSelector } from "../_components/group-selector";
+import { GroupMemberList } from "../_components/group-member-list";
 
 type GroupRow = {
   id: string;
@@ -157,7 +158,7 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
     );
   }
 
-  const [groupResult, memberResult, pendingResult, timelineResult, membershipsResult] =
+  const [groupResult, currentMemberResult, pendingResult, timelineResult, membershipsResult, groupMembersResult] =
     await Promise.all([
       supabase
         .from("groups")
@@ -175,12 +176,18 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
         .eq("status", "pending"),
       getTimelineEntries(supabase),
       supabase.rpc("get_my_account_memberships", {}, { get: true }),
+      supabase
+        .from("group_members")
+        .select("id, nickname, role")
+        .eq("group_id", claims.groupId)
+        .order("nickname", { ascending: true }),
     ]);
 
   const group = groupResult.data as GroupRow | null;
-  const member = memberResult.data as MemberProfile | null;
+  const member = currentMemberResult.data as MemberProfile | null;
   const pendingTicketCount = pendingResult.count ?? 0;
   const memberships = (membershipsResult.data ?? []) as AccountMembership[];
+  const groupMembers = (groupMembersResult.data ?? []) as MemberProfile[];
 
   if (!group || !member) {
     redirect("/");
@@ -226,13 +233,15 @@ export default async function GroupPage({ searchParams }: GroupPageProps) {
           </div>
         </section>
 
-        {(groupResult.error || memberResult.error || pendingResult.error) && (
+        {(groupResult.error || currentMemberResult.error || pendingResult.error || groupMembersResult.error) && (
           <p className="my-8 text-sm text-rose-600">
             {formatSupabaseError(
-              groupResult.error ?? memberResult.error ?? pendingResult.error!,
+              groupResult.error ?? currentMemberResult.error ?? pendingResult.error ?? groupMembersResult.error!,
             )}
           </p>
         )}
+
+        <GroupMemberList currentMemberId={claims.memberId} groupMembers={groupMembers} />
 
         {timelineResult.error && (
           <p className="my-8 text-sm text-rose-600">
